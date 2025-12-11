@@ -6,6 +6,7 @@ interface WhatsAppButtonProps {
   className?: string
   size?: 'sm' | 'md' | 'lg'
   variant?: 'icon' | 'button'
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void
 }
 
 export function WhatsAppButton({
@@ -13,6 +14,7 @@ export function WhatsAppButton({
   className,
   size = 'md',
   variant = 'button',
+  onClick,
 }: WhatsAppButtonProps) {
   const cleanNumber = phoneNumber.replace(/\D/g, '')
   const whatsappUrl = `https://wa.me/${cleanNumber}`
@@ -35,6 +37,7 @@ export function WhatsAppButton({
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={onClick}
         className={cn(
           'inline-flex items-center justify-center rounded-full bg-vivid-green text-background hover:bg-vivid-green/80 transition-all shadow-md shadow-vivid-green/30 hover:shadow-lg hover:shadow-vivid-green/40',
           sizeClasses[size],
@@ -52,6 +55,7 @@ export function WhatsAppButton({
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={onClick}
       className={cn(
         'inline-flex items-center gap-2 rounded-lg bg-vivid-green text-background hover:bg-vivid-green/80 transition-all shadow-md shadow-vivid-green/30 hover:shadow-lg hover:shadow-vivid-green/40 font-medium',
         sizeClasses[size],
