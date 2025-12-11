@@ -48,16 +48,8 @@ export function LeadCard({ lead, onClick, className }: LeadCardProps) {
       )}
       onClick={onClick}
     >
-      {/* Botón eliminar */}
-      {!showConfirm ? (
-        <button
-          onClick={handleShowConfirm}
-          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1.5 text-text-tertiary hover:text-vivid-magenta hover:bg-background-elevated rounded transition-all"
-          title="Eliminar lead"
-        >
-          <Trash2 size={14} />
-        </button>
-      ) : (
+      {/* Overlay de confirmación de eliminar */}
+      {showConfirm && (
         <div 
           className="absolute inset-0 bg-background-card/95 rounded-lg flex flex-col items-center justify-center gap-2 z-10"
           onClick={(e) => e.stopPropagation()}
@@ -81,16 +73,24 @@ export function LeadCard({ lead, onClick, className }: LeadCardProps) {
         </div>
       )}
 
-      {/* Header con nombre y WhatsApp */}
+      {/* Header con nombre y acciones */}
       <div className="flex items-start justify-between mb-3">
-        <h3 className="font-medium text-text-primary flex-1 pr-8">{lead.nombre_negocio}</h3>
-        <WhatsAppButton
-          phoneNumber={lead.whatsapp}
-          variant="icon"
-          size="sm"
-          className="flex-shrink-0"
-          onClick={(e) => e.stopPropagation()}
-        />
+        <h3 className="font-medium text-text-primary flex-1 pr-2">{lead.nombre_negocio}</h3>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <WhatsAppButton
+            phoneNumber={lead.whatsapp}
+            variant="icon"
+            size="sm"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            onClick={handleShowConfirm}
+            className="opacity-0 group-hover:opacity-100 p-1.5 text-text-tertiary hover:text-vivid-magenta hover:bg-background-elevated rounded transition-all"
+            title="Eliminar lead"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       </div>
 
       {/* Badges de estado */}
