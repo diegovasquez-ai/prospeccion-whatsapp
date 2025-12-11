@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Calendar, CheckCircle, Circle } from 'lucide-react'
+import { X, CheckCircle, Circle } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { WhatsAppButton } from '@/shared/components/ui/WhatsAppButton'
@@ -17,15 +17,15 @@ interface LeadDetailPanelProps {
 }
 
 export function LeadDetailPanel({ lead, onClose }: LeadDetailPanelProps) {
-  const [isEditMode, setIsEditMode] = useState(false)
+  const [_isEditMode, setIsEditMode] = useState(false)
   const [formData, setFormData] = useState(lead)
 
   const { data: actividades = [], isLoading: actividadesLoading } =
     useActividadesByLead(lead.id!)
 
-  const { mutate: updateLead, isPending: isUpdating } = useUpdateLead()
+  const { mutate: updateLead } = useUpdateLead()
 
-  const handleSave = () => {
+  const _handleSave = () => {
     updateLead(
       {
         id: lead.id!,

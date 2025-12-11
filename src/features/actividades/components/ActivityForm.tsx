@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useCreateActividad } from '../hooks/useActividades'
 import {
   TipoActividad,
-  ResultadoActividad,
   TIPO_ACTIVIDAD_LABELS,
   RESULTADO_ACTIVIDAD_LABELS,
   type TipoActividadType,

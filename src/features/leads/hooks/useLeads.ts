@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { leadsService } from '../services/leadsService'
 import type {
-  Lead,
   CreateLeadInput,
   UpdateLeadInput,
   LeadFilters,

@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { actividadesService } from '../services/actividadesService'
 import type {
-  Actividad,
   CreateActividadInput,
   UpdateActividadInput,
 } from '../types'

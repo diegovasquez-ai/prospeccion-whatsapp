@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { LayoutDashboard, Trello, Calendar, BarChart3 } from 'lucide-react'
+import { Trello, Calendar, BarChart3 } from 'lucide-react'
 import { cn } from '@/shared/utils/cn'
 
 const NAV_ITEMS = [
