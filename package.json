@@ -1,0 +1,69 @@
+{
+  "name": "crm-whatsapp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CRM WhatsApp con Next.js 16, Supabase y Claude Code",
+  "scripts": {
+    "dev": "node scripts/dev-server.js",
+    "build": "next build",
+    "start": "next start",
+    "preview": "next build && next start",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "commit": "git-cz",
+    "pre-commit": "npm run lint && npm run typecheck && npm run test"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.1.0",
+    "@dnd-kit/sortable": "^8.0.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "@tanstack/react-query": "^5.17.19",
+    "clsx": "^2.0.0",
+    "date-fns": "^3.0.6",
+    "lucide-react": "^0.303.0",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.2.0",
+    "zod": "^3.22.4",
+    "zustand": "^4.4.7"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.1.5",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/user-event": "^14.5.1",
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.19.26",
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.2.18",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
+    "autoprefixer": "^10.4.16",
+    "commitizen": "^4.3.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^15.1.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "postcss": "^8.4.33",
+    "prettier": "^3.1.1",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.9.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

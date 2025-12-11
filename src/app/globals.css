@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Fondo negro profundo */
+  --background: #0a0a0a;
+  --background-elevated: #141414;
+  --background-card: #1a1a1a;
+
+  /* Colores vivos con alto contraste */
+  --color-cyan: #00D9FF;
+  --color-magenta: #FF006E;
+  --color-green: #00FF88;
+  --color-yellow: #FFD60A;
+  --color-purple: #A855F7;
+  --color-blue: #3B82F6;
+
+  /* Texto con alto contraste */
+  --text-primary: #FFFFFF;
+  --text-secondary: #A3A3A3;
+  --text-tertiary: #737373;
+
+  /* Bordes */
+  --border-primary: #2a2a2a;
+  --border-secondary: #404040;
+  --border-accent: var(--color-cyan);
+}
+
+body {
+  color: var(--text-primary);
+  background-color: var(--background);
+  font-feature-settings: 'rlig' 1, 'calt' 1;
+}
+
+/* Scrollbar personalizada para tema negro */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #404040;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #525252;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Gradientes vibrantes */
+  .gradient-cyan-magenta {
+    background: linear-gradient(135deg, var(--color-cyan) 0%, var(--color-magenta) 100%);
+  }
+
+  .gradient-purple-blue {
+    background: linear-gradient(135deg, var(--color-purple) 0%, var(--color-blue) 100%);
+  }
+
+  .gradient-green-cyan {
+    background: linear-gradient(135deg, var(--color-green) 0%, var(--color-cyan) 100%);
+  }
+}
