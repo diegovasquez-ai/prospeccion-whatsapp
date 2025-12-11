@@ -16,7 +16,6 @@ import { TIPO_ACTIVIDAD_LABELS } from '@/features/actividades/types'
 import { LeadDetailPanel } from '@/features/leads/components/LeadDetailPanel'
 import { WhatsAppButton } from '@/shared/components/ui/WhatsAppButton'
 import { useLead } from '@/features/leads/hooks/useLeads'
-import type { Lead } from '@/features/leads/types'
 import type { Actividad } from '@/features/actividades/types'
 
 type ActividadConLead = Actividad & { lead: { id: string; nombre_negocio: string; whatsapp: string } }
