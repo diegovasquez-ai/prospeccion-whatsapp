@@ -17,27 +17,12 @@ interface LeadDetailPanelProps {
 }
 
 export function LeadDetailPanel({ lead, onClose }: LeadDetailPanelProps) {
-  const [_isEditMode, setIsEditMode] = useState(false)
   const [formData, setFormData] = useState(lead)
 
   const { data: actividades = [], isLoading: actividadesLoading } =
     useActividadesByLead(lead.id!)
 
   const { mutate: updateLead } = useUpdateLead()
-
-  const _handleSave = () => {
-    updateLead(
-      {
-        id: lead.id!,
-        input: formData,
-      },
-      {
-        onSuccess: () => {
-          setIsEditMode(false)
-        },
-      }
-    )
-  }
 
   const toggleFlag = (field: keyof Lead) => {
     const newValue = !formData[field]
