@@ -2,11 +2,11 @@
 
 import { useState } from 'react'
 import {
+  closestCorners,
   DndContext,
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
-
   MouseSensor,
   TouchSensor,
   useSensor,
@@ -76,13 +76,29 @@ export function KanbanBoard({
     }
 
     const leadId = active.id as string
-    const newEtapa = over.id as EtapaLeadType
+    let newEtapa = over.id as EtapaLeadType
 
-    // Actualizar etapa del lead
-    updateLead({
-      id: leadId,
-      input: { etapa: newEtapa },
-    })
+    // Si el id sobre el que soltamos NO es una columna, asumimos que es un lead
+    // y buscamos su etapa correspondiente
+    if (!COLUMNAS_PIPELINE.includes(newEtapa)) {
+      const overLead = leads.find((l) => l.id === over.id)
+      if (overLead) {
+        newEtapa = overLead.etapa
+      } else {
+        // Si no es columna ni lead conocido, cancelamos
+        setActiveLead(null)
+        return
+      }
+    }
+
+    // Actualizar etapa del lead solo si cambió
+    const activeLead = leads.find((l) => l.id === leadId)
+    if (activeLead && activeLead.etapa !== newEtapa) {
+      updateLead({
+        id: leadId,
+        input: { etapa: newEtapa },
+      })
+    }
 
     setActiveLead(null)
   }
@@ -111,6 +127,7 @@ export function KanbanBoard({
   return (
     <DndContext
       sensors={sensors}
+      collisionDetection={closestCorners}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
