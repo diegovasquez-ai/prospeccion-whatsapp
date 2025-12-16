@@ -107,7 +107,7 @@ export function KanbanBoard({
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div className="flex gap-4 pb-4">
         {COLUMNAS_PIPELINE.map((etapa) => (
           <KanbanColumn
             key={etapa}

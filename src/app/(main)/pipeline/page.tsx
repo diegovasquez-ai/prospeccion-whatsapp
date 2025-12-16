@@ -69,7 +69,7 @@ export default function PipelinePage() {
         </header>
 
         {/* Kanban Board */}
-        <main className="flex-1 overflow-x-auto px-6 py-4 bg-background">
+        <main className="flex-1 overflow-auto px-6 py-4 bg-background">
           <KanbanBoard
             searchQuery={searchQuery}
             esCalificadoFilter={esCalificadoFilter}
