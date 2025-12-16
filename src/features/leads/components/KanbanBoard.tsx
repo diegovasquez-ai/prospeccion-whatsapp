@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import {
-  closestCorners,
   DndContext,
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
   MouseSensor,
+  pointerWithin,
   TouchSensor,
   useSensor,
   useSensors,
@@ -127,7 +127,7 @@ export function KanbanBoard({
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
