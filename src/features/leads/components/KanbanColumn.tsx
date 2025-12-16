@@ -27,7 +27,7 @@ export function KanbanColumn({
   const leadIds = leads.map((lead) => lead.id!)
 
   return (
-    <div className="flex-shrink-0 w-80">
+    <div className="flex-shrink-0 w-80 flex flex-col">
       {/* Header de columna */}
       <div className="mb-3 flex items-center justify-between">
         <h3 className="font-semibold text-text-primary">{title}</h3>
@@ -40,7 +40,7 @@ export function KanbanColumn({
       <div
         ref={setNodeRef}
         className={cn(
-          'min-h-[500px] rounded-lg p-3 transition-all duration-200',
+          'min-h-[500px] rounded-lg p-3 transition-all duration-200 flex-1',
           isOver
             ? 'bg-vivid-cyan/10 border-2 border-vivid-cyan shadow-lg shadow-vivid-cyan/20'
             : 'bg-background-elevated border-2 border-border-primary'

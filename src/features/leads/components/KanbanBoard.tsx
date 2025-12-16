@@ -6,7 +6,9 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
-  PointerSensor,
+
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
@@ -47,9 +49,15 @@ export function KanbanBoard({
   const { mutate: updateLead } = useUpdateLead()
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 5, // Menor distancia para iniciar drag con mouse (más responsivo)
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250, // Pequeño delay para diferenciar scroll de drag
+        tolerance: 5,
       },
     })
   )
@@ -107,7 +115,7 @@ export function KanbanBoard({
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div className="flex gap-4 pb-4">
+      <div className="flex gap-4 pb-4 min-h-full">
         {COLUMNAS_PIPELINE.map((etapa) => (
           <KanbanColumn
             key={etapa}
