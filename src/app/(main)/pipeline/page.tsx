@@ -44,7 +44,7 @@ export default function PipelinePage() {
               />
               <input
                 type="text"
-                placeholder="Buscar por teléfono..."
+                placeholder="Buscar por teléfono o nombre..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-background-card border border-border-secondary rounded-lg focus:ring-2 focus:ring-vivid-cyan focus:border-vivid-cyan text-text-primary placeholder:text-text-tertiary transition-all"

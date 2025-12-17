@@ -26,7 +26,8 @@ export const leadsService = {
     }
 
     if (filters?.search) {
-      query = query.ilike('whatsapp', `%${filters.search}%`)
+      // Buscar por whatsapp o nombre del negocio
+      query = query.or(`whatsapp.ilike.%${filters.search}%,nombre_negocio.ilike.%${filters.search}%`)
     }
 
     const { data, error } = await query
