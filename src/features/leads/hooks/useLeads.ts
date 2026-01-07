@@ -92,3 +92,13 @@ export function useLeadsMetrics(weekStart: Date, weekEnd: Date) {
     queryFn: () => leadsService.getMetrics(weekStart, weekEnd),
   })
 }
+
+/**
+ * Hook para obtener el conteo de leads creados hoy
+ */
+export function useTodayLeadsCount() {
+  return useQuery({
+    queryKey: [LEADS_QUERY_KEY, 'count', 'today'],
+    queryFn: () => leadsService.getTodayLeadsCount(),
+  })
+}

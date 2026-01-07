@@ -223,4 +223,25 @@ export const leadsService = {
       leadsPorEtapa,
     }
   },
+  /**
+   * Obtener conteo de leads creados hoy
+   */
+  async getTodayLeadsCount(): Promise<number> {
+    const hoy = new Date()
+    // Normalizar a inicio del día en la zona horaria local
+    const inicioDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
+    const finDia = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 23, 59, 59, 999)
+
+    const { count, error } = await supabase
+      .from('leads')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', inicioDia.toISOString())
+      .lte('created_at', finDia.toISOString())
+
+    if (error) {
+      throw new Error(`Error fetching today leads count: ${error.message}`)
+    }
+
+    return count || 0
+  },
 }

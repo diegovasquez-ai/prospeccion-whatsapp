@@ -5,6 +5,7 @@ import { Search, Plus } from 'lucide-react'
 import { KanbanBoard } from '@/features/leads/components/KanbanBoard'
 import { LeadDetailPanel } from '@/features/leads/components/LeadDetailPanel'
 import { CreateLeadModal } from '@/features/leads/components/CreateLeadModal'
+import { useTodayLeadsCount } from '@/features/leads/hooks/useLeads'
 import type { Lead } from '@/features/leads/types'
 
 export default function PipelinePage() {
@@ -14,6 +15,7 @@ export default function PipelinePage() {
   const [esCalificadoFilter, setEsCalificadoFilter] = useState<boolean | null>(
     null
   )
+  const { data: todayLeadsCount = 0 } = useTodayLeadsCount()
 
   return (
     <div className="flex h-screen bg-background">
@@ -22,9 +24,17 @@ export default function PipelinePage() {
         {/* Header */}
         <header className="border-b border-border-primary px-6 py-4 bg-background-elevated">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-text-primary">
-              Pipeline de Prospección
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-text-primary">
+                Pipeline de Prospección
+              </h1>
+              <div className="px-3 py-1 bg-background-card border border-border-secondary rounded-full flex items-center gap-2 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-vivid-green animate-pulse" />
+                <span className="text-xs font-medium text-text-secondary">
+                  Hoy: <span className="text-text-primary font-bold">{todayLeadsCount}</span> leads
+                </span>
+              </div>
+            </div>
             <button
               onClick={() => setIsCreateModalOpen(true)}
               className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-vivid text-white rounded-lg hover:opacity-90 transition-opacity font-medium shadow-lg shadow-vivid-cyan/20"
