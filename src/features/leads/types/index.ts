@@ -16,7 +16,7 @@ export type EtapaLeadType = (typeof EtapaLead)[keyof typeof EtapaLead]
 
 // Labels para UI
 export const ETAPA_LABELS: Record<EtapaLeadType, string> = {
-  [EtapaLead.NUEVO_LEAD]: 'Nuevo lead',
+  [EtapaLead.NUEVO_LEAD]: 'No respondió',
   [EtapaLead.PRIMER_MENSAJE_ENVIADO]: 'Primer mensaje enviado',
   [EtapaLead.AUDIO_ENVIADO]: 'Audio enviado',
   [EtapaLead.LOOM_ENVIADO]: 'Loom enviado',
