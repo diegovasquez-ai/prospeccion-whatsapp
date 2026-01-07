@@ -91,6 +91,7 @@ export default function PipelinePage() {
       {/* Side panel de detalle */}
       {selectedLead && (
         <LeadDetailPanel
+          key={selectedLead.id}
           lead={selectedLead}
           onClose={() => setSelectedLead(null)}
         />
