@@ -13,7 +13,7 @@ interface CreateLeadModalProps {
 export function CreateLeadModal({ isOpen, onClose }: CreateLeadModalProps) {
   const [nombreNegocio, setNombreNegocio] = useState('')
   const [whatsapp, setWhatsapp] = useState('')
-  const [etapa, setEtapa] = useState<EtapaLeadType>(EtapaLead.NUEVO_LEAD)
+  const [etapa, setEtapa] = useState<EtapaLeadType>(EtapaLead.PRIMER_MENSAJE_ENVIADO)
   const [esCalificado, setEsCalificado] = useState(false)
 
   const { mutate: createLead, isPending } = useCreateLead()
@@ -38,7 +38,7 @@ export function CreateLeadModal({ isOpen, onClose }: CreateLeadModalProps) {
           // Reset form
           setNombreNegocio('')
           setWhatsapp('')
-          setEtapa(EtapaLead.NUEVO_LEAD)
+          setEtapa(EtapaLead.PRIMER_MENSAJE_ENVIADO)
           setEsCalificado(false)
           onClose()
         },
