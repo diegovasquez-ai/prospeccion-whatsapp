@@ -15,11 +15,13 @@ export function CreateLeadModal({ isOpen, onClose }: CreateLeadModalProps) {
   const [whatsapp, setWhatsapp] = useState('')
   const [etapa, setEtapa] = useState<EtapaLeadType>(EtapaLead.PRIMER_MENSAJE_ENVIADO)
   const [esCalificado, setEsCalificado] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const { mutate: createLead, isPending } = useCreateLead()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
 
     createLead(
       {
@@ -40,7 +42,11 @@ export function CreateLeadModal({ isOpen, onClose }: CreateLeadModalProps) {
           setWhatsapp('')
           setEtapa(EtapaLead.PRIMER_MENSAJE_ENVIADO)
           setEsCalificado(false)
+          setError(null)
           onClose()
+        },
+        onError: (err) => {
+          setError(err.message)
         },
       }
     )
@@ -64,6 +70,11 @@ export function CreateLeadModal({ isOpen, onClose }: CreateLeadModalProps) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-2 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
           {/* Nombre del negocio */}
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-1">
@@ -72,7 +83,10 @@ export function CreateLeadModal({ isOpen, onClose }: CreateLeadModalProps) {
             <input
               type="text"
               value={nombreNegocio}
-              onChange={(e) => setNombreNegocio(e.target.value)}
+              onChange={(e) => {
+                setNombreNegocio(e.target.value)
+                setError(null)
+              }}
               required
               className="w-full px-3 py-2 bg-background-elevated border border-border-secondary rounded-lg focus:ring-2 focus:ring-vivid-cyan focus:border-vivid-cyan text-text-primary placeholder:text-text-tertiary"
               placeholder="Ej: Inmobiliaria XYZ"
@@ -87,7 +101,10 @@ export function CreateLeadModal({ isOpen, onClose }: CreateLeadModalProps) {
             <input
               type="text"
               value={whatsapp}
-              onChange={(e) => setWhatsapp(e.target.value)}
+              onChange={(e) => {
+                setWhatsapp(e.target.value)
+                setError(null)
+              }}
               required
               className="w-full px-3 py-2 bg-background-elevated border border-border-secondary rounded-lg focus:ring-2 focus:ring-vivid-cyan focus:border-vivid-cyan text-text-primary placeholder:text-text-tertiary"
               placeholder="Ej: +56912345678"

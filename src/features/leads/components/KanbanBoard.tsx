@@ -34,6 +34,60 @@ const COLUMNAS_PIPELINE: EtapaLeadType[] = [
   EtapaLead.CERRADO,
 ]
 
+const STAGE_STYLES: Record<
+  EtapaLeadType,
+  { borderColor: string; badgeBg: string; badgeText: string; glow: string }
+> = {
+  [EtapaLead.NUEVO_LEAD]: {
+    borderColor: 'border-text-tertiary',
+    badgeBg: 'bg-text-tertiary/10',
+    badgeText: 'text-text-tertiary',
+    glow: 'shadow-text-tertiary/20',
+  },
+  [EtapaLead.PRIMER_MENSAJE_ENVIADO]: {
+    borderColor: 'border-vivid-blue',
+    badgeBg: 'bg-vivid-blue/10',
+    badgeText: 'text-vivid-blue',
+    glow: 'shadow-vivid-blue/20',
+  },
+  [EtapaLead.AUDIO_ENVIADO]: {
+    borderColor: 'border-vivid-purple',
+    badgeBg: 'bg-vivid-purple/10',
+    badgeText: 'text-vivid-purple',
+    glow: 'shadow-vivid-purple/20',
+  },
+  [EtapaLead.LOOM_ENVIADO]: {
+    borderColor: 'border-vivid-magenta',
+    badgeBg: 'bg-vivid-magenta/10',
+    badgeText: 'text-vivid-magenta',
+    glow: 'shadow-vivid-magenta/20',
+  },
+  [EtapaLead.RESPONDIO]: {
+    borderColor: 'border-vivid-yellow',
+    badgeBg: 'bg-vivid-yellow/10',
+    badgeText: 'text-vivid-yellow',
+    glow: 'shadow-vivid-yellow/20',
+  },
+  [EtapaLead.INTERESADO]: {
+    borderColor: 'border-vivid-cyan',
+    badgeBg: 'bg-vivid-cyan/10',
+    badgeText: 'text-vivid-cyan',
+    glow: 'shadow-vivid-cyan/20',
+  },
+  [EtapaLead.REUNION_AGENDADA]: {
+    borderColor: 'border-vivid-green',
+    badgeBg: 'bg-vivid-green/10',
+    badgeText: 'text-vivid-green',
+    glow: 'shadow-vivid-green/20',
+  },
+  [EtapaLead.CERRADO]: {
+    borderColor: 'border-red-500',
+    badgeBg: 'bg-red-500/10',
+    badgeText: 'text-red-500',
+    glow: 'shadow-red-500/20',
+  },
+}
+
 export function KanbanBoard({
   onLeadClick,
   searchQuery,
@@ -140,6 +194,7 @@ export function KanbanBoard({
             title={ETAPA_LABELS[etapa]}
             leads={leadsPorEtapa[etapa]}
             onLeadClick={onLeadClick}
+            colorStyles={STAGE_STYLES[etapa]}
           />
         ))}
       </div>

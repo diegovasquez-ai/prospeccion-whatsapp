@@ -63,6 +63,17 @@ export const leadsService = {
    * Crear un nuevo lead
    */
   async createLead(input: CreateLeadInput): Promise<Lead> {
+    // Verificar si el número ya existe
+    const { data: existingLead } = await supabase
+      .from('leads')
+      .select('id')
+      .eq('whatsapp', input.whatsapp)
+      .single()
+
+    if (existingLead) {
+      throw new Error('El número de WhatsApp ya existe')
+    }
+
     const { data, error } = await supabase
       .from('leads')
       .insert(input)

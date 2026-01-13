@@ -12,6 +12,12 @@ interface KanbanColumnProps {
   title: string
   leads: Lead[]
   onLeadClick?: (lead: Lead) => void
+  colorStyles: {
+    borderColor: string
+    badgeBg: string
+    badgeText: string
+    glow: string
+  }
 }
 
 export function KanbanColumn({
@@ -19,6 +25,7 @@ export function KanbanColumn({
   title,
   leads,
   onLeadClick,
+  colorStyles,
 }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: etapa,
@@ -30,8 +37,16 @@ export function KanbanColumn({
     <div className="flex-shrink-0 w-80 flex flex-col">
       {/* Header de columna */}
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="font-semibold text-text-primary">{title}</h3>
-        <span className="text-sm text-text-primary bg-vivid-cyan/20 px-2 py-0.5 rounded-full border border-vivid-cyan/30">
+        <h3 className={cn('font-semibold', colorStyles.badgeText)}>
+          {title}
+        </h3>
+        <span
+          className={cn(
+            'text-sm px-2 py-0.5 rounded-full border border-current font-medium',
+            colorStyles.badgeBg,
+            colorStyles.badgeText
+          )}
+        >
           {leads.length}
         </span>
       </div>
@@ -40,12 +55,19 @@ export function KanbanColumn({
       <div
         ref={setNodeRef}
         className={cn(
-          'min-h-[500px] rounded-lg p-3 transition-all duration-200 flex-1',
+          'min-h-[500px] rounded-lg p-3 transition-all duration-200 flex-1 border-2',
           isOver
-            ? 'bg-vivid-cyan/10 border-2 border-vivid-cyan shadow-lg shadow-vivid-cyan/20'
-            : 'bg-background-elevated border-2 border-border-primary'
+            ? cn('bg-background-elevated shadow-lg', colorStyles.borderColor, colorStyles.glow)
+            : cn('bg-background-elevated/50 border-border-primary hover:border-opacity-100', `hover:${colorStyles.borderColor}`)
         )}
+        style={{
+          borderTopColor: !isOver ? 'var(--column-color)' : undefined,
+        }}
       >
+        <div
+          className={cn('h-1 w-full rounded-full mb-3', colorStyles.badgeBg)}
+        />
+
         <SortableContext items={leadIds} strategy={verticalListSortingStrategy}>
           <div className="space-y-3">
             {leads.map((lead) => (
