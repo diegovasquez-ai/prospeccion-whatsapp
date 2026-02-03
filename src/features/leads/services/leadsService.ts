@@ -6,6 +6,17 @@ import type {
   LeadFilters,
 } from '../types'
 
+// Helper para formatear número de teléfono
+function formatPhoneNumber(phone: string): string {
+  // Eliminar espacios
+  let cleaned = phone.replace(/\s/g, '')
+  // Asegurar que empiece con +
+  if (!cleaned.startsWith('+')) {
+    cleaned = '+' + cleaned
+  }
+  return cleaned
+}
+
 export const leadsService = {
   /**
    * Obtener todos los leads con filtros opcionales
@@ -63,11 +74,13 @@ export const leadsService = {
    * Crear un nuevo lead
    */
   async createLead(input: CreateLeadInput): Promise<Lead> {
+    const formattedWhatsapp = formatPhoneNumber(input.whatsapp)
+
     // Verificar si el número ya existe
     const { data: existingLead } = await supabase
       .from('leads')
       .select('id')
-      .eq('whatsapp', input.whatsapp)
+      .eq('whatsapp', formattedWhatsapp)
       .single()
 
     if (existingLead) {
@@ -76,7 +89,10 @@ export const leadsService = {
 
     const { data, error } = await supabase
       .from('leads')
-      .insert(input)
+      .insert({
+        ...input,
+        whatsapp: formattedWhatsapp
+      })
       .select()
       .single()
 
@@ -91,9 +107,15 @@ export const leadsService = {
    * Actualizar un lead existente
    */
   async updateLead(id: string, input: Partial<UpdateLeadInput>): Promise<Lead> {
+    const updateData = { ...input }
+
+    if (updateData.whatsapp) {
+      updateData.whatsapp = formatPhoneNumber(updateData.whatsapp)
+    }
+
     const { data, error } = await supabase
       .from('leads')
-      .update(input)
+      .update(updateData)
       .eq('id', id)
       .select()
       .single()
