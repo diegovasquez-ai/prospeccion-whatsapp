@@ -1,91 +1,48 @@
+'use client'
+
 import { useDroppable } from '@dnd-kit/core'
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
-import { SortableLeadCard } from './SortableLeadCard'
-import type { Lead, EtapaLeadType } from '../types'
 import { cn } from '@/shared/utils/cn'
+import { formatMoney } from '@/shared/utils/dates'
+import { SortableLeadCard } from './SortableLeadCard'
+import { ETAPA_COLORS, ETAPA_LABELS, type EtapaLeadType, type Lead } from '../types'
 
 interface KanbanColumnProps {
   etapa: EtapaLeadType
-  title: string
   leads: Lead[]
-  onLeadClick?: (lead: Lead) => void
-  colorStyles: {
-    borderColor: string
-    badgeBg: string
-    badgeText: string
-    glow: string
-  }
+  onLeadClick: (lead: Lead) => void
 }
 
-export function KanbanColumn({
-  etapa,
-  title,
-  leads,
-  onLeadClick,
-  colorStyles,
-}: KanbanColumnProps) {
-  const { setNodeRef, isOver } = useDroppable({
-    id: etapa,
-  })
-
-  const leadIds = leads.map((lead) => lead.id!)
+export function KanbanColumn({ etapa, leads, onLeadClick }: KanbanColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({ id: etapa })
+  const color = ETAPA_COLORS[etapa]
+  const valor = leads.reduce((acc, l) => acc + (l.valor_estimado ?? 0), 0)
 
   return (
-    <div className="flex-shrink-0 w-80 flex flex-col">
-      {/* Header de columna */}
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className={cn('font-semibold', colorStyles.badgeText)}>
-          {title}
-        </h3>
-        <span
-          className={cn(
-            'text-sm px-2 py-0.5 rounded-full border border-current font-medium',
-            colorStyles.badgeBg,
-            colorStyles.badgeText
-          )}
-        >
-          {leads.length}
-        </span>
-      </div>
-
-      {/* Zona de drop */}
+    <section className="flex w-72 shrink-0 flex-col" aria-label={ETAPA_LABELS[etapa]}>
+      <header className="mb-2 px-1">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-text-primary">
+            <span className={cn('h-2 w-2 rounded-full', color.bg)} />
+            {ETAPA_LABELS[etapa]}
+          </h2>
+          <span className="rounded-full bg-background-card px-2 py-0.5 text-xs text-text-secondary">{leads.length}</span>
+        </div>
+        {valor > 0 && <p className="mt-0.5 pl-4 text-[11px] text-text-tertiary">{formatMoney(valor)}</p>}
+      </header>
       <div
         ref={setNodeRef}
         className={cn(
-          'min-h-[500px] rounded-lg p-3 transition-all duration-200 flex-1 border-2',
-          isOver
-            ? cn('bg-background-elevated shadow-lg', colorStyles.borderColor, colorStyles.glow)
-            : cn('bg-background-elevated/50 border-border-primary hover:border-opacity-100', `hover:${colorStyles.borderColor}`)
+          'flex-1 space-y-2 rounded-xl border p-2 transition-colors min-h-[200px]',
+          isOver ? cn('bg-background-card/80', color.border) : 'border-border-primary bg-background-elevated/60'
         )}
-        style={{
-          borderTopColor: !isOver ? 'var(--column-color)' : undefined,
-        }}
       >
-        <div
-          className={cn('h-1 w-full rounded-full mb-3', colorStyles.badgeBg)}
-        />
-
-        <SortableContext items={leadIds} strategy={verticalListSortingStrategy}>
-          <div className="space-y-3">
-            {leads.map((lead) => (
-              <SortableLeadCard
-                key={lead.id}
-                lead={lead}
-                onClick={() => onLeadClick?.(lead)}
-              />
-            ))}
-
-            {leads.length === 0 && (
-              <p className="text-center text-text-tertiary text-sm py-8">
-                No hay leads en esta etapa
-              </p>
-            )}
-          </div>
-        </SortableContext>
+        {leads.map((lead) => (
+          <SortableLeadCard key={lead.id} lead={lead} onClick={() => onLeadClick(lead)} />
+        ))}
+        {leads.length === 0 && (
+          <p className="py-6 text-center text-xs text-text-tertiary">Arrastra contactos aquí</p>
+        )}
       </div>
-    </div>
+    </section>
   )
 }

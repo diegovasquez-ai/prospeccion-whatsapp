@@ -1,152 +1,49 @@
-import { supabase } from '@/shared/lib/supabase'
-import type { Actividad, CreateActividadInput, UpdateActividadInput } from '../types'
+import { createRepository } from '@/shared/lib/repository'
+import { leadsService } from '@/features/leads/services/leadsService'
+import type { Lead } from '@/features/leads/types'
+import { TIPOS_CONVERSACION, type Actividad, type CreateActividadInput } from '../types'
+
+const repo = createRepository<Actividad>('actividades')
+
+/** Actualiza en el contacto los datos que se derivan de una nueva actividad */
+async function syncLeadFromActividad(actividad: CreateActividadInput) {
+  const patch: Partial<Lead> = {}
+  if (TIPOS_CONVERSACION.includes(actividad.tipo)) patch.fecha_ultimo_contacto = actividad.fecha_hora
+  if (actividad.tipo === 'whatsapp_entrante' || actividad.resultado === 'respondio') patch.respondio = true
+  if (actividad.tipo === 'loom_enviado') patch.loom_enviado = true
+  if (actividad.tipo === 'reunion') patch.tuvo_reunion = true
+  if (Object.keys(patch).length > 0) await leadsService.update(actividad.lead_id, patch)
+}
 
 export const actividadesService = {
-  /**
-   * Obtener todas las actividades de un lead
-   */
-  async getActividadesByLeadId(leadId: string): Promise<Actividad[]> {
-    const { data, error } = await supabase
-      .from('actividades')
-      .select('*')
-      .eq('lead_id', leadId)
-      .order('fecha_hora', { ascending: false })
-
-    if (error) {
-      throw new Error(`Error fetching actividades: ${error.message}`)
-    }
-
-    return data || []
+  async list(): Promise<Actividad[]> {
+    const rows = await repo.list()
+    return rows
+      .map((a) => ({ ...a, duracion_minutos: a.duracion_minutos ?? null }))
+      .sort((a, b) => b.fecha_hora.localeCompare(a.fecha_hora))
   },
 
-  /**
-   * Obtener una actividad por ID
-   */
-  async getActividadById(id: string): Promise<Actividad | null> {
-    const { data, error } = await supabase
-      .from('actividades')
-      .select('*')
-      .eq('id', id)
-      .single()
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return null
-      }
-      throw new Error(`Error fetching actividad: ${error.message}`)
+  async create(input: CreateActividadInput): Promise<Actividad> {
+    let created: Actividad
+    try {
+      created = await repo.insert(input)
+    } catch (error) {
+      // BD sin migración 004: reintenta sin duración y con un tipo compatible
+      if (!(error instanceof Error && /duracion|valid_tipo|column/i.test(error.message))) throw error
+      const { duracion_minutos, ...legacy } = input
+      const tipo = input.tipo.startsWith('whatsapp') ? 'follow_up' : input.tipo
+      const nota = duracion_minutos ? `${legacy.nota ?? ''} (${duracion_minutos} min)`.trim() : legacy.nota
+      created = await repo.insert({ ...legacy, tipo, nota } as CreateActividadInput)
     }
-
-    return data
+    await syncLeadFromActividad(input)
+    return created
   },
 
-  /**
-   * Crear una nueva actividad
-   */
-  async createActividad(input: CreateActividadInput): Promise<Actividad> {
-    const { data, error } = await supabase
-      .from('actividades')
-      .insert(input)
-      .select()
-      .single()
-
-    if (error) {
-      throw new Error(`Error creating actividad: ${error.message}`)
-    }
-
-    return data
+  async update(id: string, patch: Partial<Actividad>): Promise<Actividad> {
+    return repo.update(id, patch)
   },
 
-  /**
-   * Actualizar una actividad existente
-   */
-  async updateActividad(
-    id: string,
-    input: Partial<UpdateActividadInput>
-  ): Promise<Actividad> {
-    const { data, error } = await supabase
-      .from('actividades')
-      .update(input)
-      .eq('id', id)
-      .select()
-      .single()
-
-    if (error) {
-      throw new Error(`Error updating actividad: ${error.message}`)
-    }
-
-    return data
-  },
-
-  /**
-   * Eliminar una actividad
-   */
-  async deleteActividad(id: string): Promise<void> {
-    const { error } = await supabase.from('actividades').delete().eq('id', id)
-
-    if (error) {
-      throw new Error(`Error deleting actividad: ${error.message}`)
-    }
-  },
-
-  /**
-   * Obtener actividades para HOY (hoy y pendientes pasadas)
-   */
-  async getActividadesHoy(): Promise<{
-    hoy: (Actividad & { lead: { id: string; nombre_negocio: string; whatsapp: string } })[]
-    pendientes: (Actividad & { lead: { id: string; nombre_negocio: string; whatsapp: string } })[]
-    proximas: (Actividad & { lead: { id: string; nombre_negocio: string; whatsapp: string } })[]
-  }> {
-    const hoy = new Date()
-    hoy.setHours(0, 0, 0, 0)
-    
-    const finHoy = new Date(hoy)
-    finHoy.setHours(23, 59, 59, 999)
-
-    const manana = new Date(hoy)
-    manana.setDate(manana.getDate() + 1)
-
-    const en7Dias = new Date(hoy)
-    en7Dias.setDate(en7Dias.getDate() + 7)
-
-    // Actividades de hoy
-    const { data: actividadesHoy, error: errorHoy } = await supabase
-      .from('actividades')
-      .select('*, lead:leads(id, nombre_negocio, whatsapp)')
-      .gte('fecha_hora', hoy.toISOString())
-      .lte('fecha_hora', finHoy.toISOString())
-      .order('fecha_hora', { ascending: true })
-
-    if (errorHoy) {
-      throw new Error(`Error fetching actividades hoy: ${errorHoy.message}`)
-    }
-
-    // Actividades pendientes (fechas pasadas)
-    const { data: actividadesPendientes, error: errorPendientes } = await supabase
-      .from('actividades')
-      .select('*, lead:leads(id, nombre_negocio, whatsapp)')
-      .lt('fecha_hora', hoy.toISOString())
-      .order('fecha_hora', { ascending: false })
-
-    if (errorPendientes) {
-      throw new Error(`Error fetching actividades pendientes: ${errorPendientes.message}`)
-    }
-
-    // Actividades próximas (mañana a 7 días)
-    const { data: actividadesProximas, error: errorProximas } = await supabase
-      .from('actividades')
-      .select('*, lead:leads(id, nombre_negocio, whatsapp)')
-      .gte('fecha_hora', manana.toISOString())
-      .lte('fecha_hora', en7Dias.toISOString())
-      .order('fecha_hora', { ascending: true })
-
-    if (errorProximas) {
-      throw new Error(`Error fetching actividades proximas: ${errorProximas.message}`)
-    }
-
-    return {
-      hoy: (actividadesHoy || []) as (Actividad & { lead: { id: string; nombre_negocio: string; whatsapp: string } })[],
-      pendientes: (actividadesPendientes || []) as (Actividad & { lead: { id: string; nombre_negocio: string; whatsapp: string } })[],
-      proximas: (actividadesProximas || []) as (Actividad & { lead: { id: string; nombre_negocio: string; whatsapp: string } })[],
-    }
+  async remove(id: string): Promise<void> {
+    await repo.remove(id)
   },
 }

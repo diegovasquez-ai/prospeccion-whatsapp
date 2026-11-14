@@ -3,35 +3,23 @@ import { cn } from '@/shared/utils/cn'
 interface StatusBadgeProps {
   label: string
   variant?: 'default' | 'success' | 'warning' | 'info' | 'danger'
-  size?: 'sm' | 'md'
   className?: string
 }
 
-export function StatusBadge({
-  label,
-  variant = 'default',
-  size = 'sm',
-  className,
-}: StatusBadgeProps) {
-  const variantClasses = {
-    default: 'bg-text-tertiary/20 text-text-primary border border-text-tertiary/30',
-    success: 'bg-vivid-green/20 text-vivid-green border border-vivid-green/30',
-    warning: 'bg-vivid-yellow/20 text-vivid-yellow border border-vivid-yellow/30',
-    info: 'bg-vivid-blue/20 text-vivid-blue border border-vivid-blue/30',
-    danger: 'bg-vivid-magenta/20 text-vivid-magenta border border-vivid-magenta/30',
-  }
+const VARIANTS = {
+  default: 'bg-text-tertiary/15 text-text-secondary border-text-tertiary/30',
+  success: 'bg-vivid-green/10 text-vivid-green border-vivid-green/30',
+  warning: 'bg-vivid-yellow/10 text-vivid-yellow border-vivid-yellow/30',
+  info: 'bg-vivid-cyan/10 text-vivid-cyan border-vivid-cyan/30',
+  danger: 'bg-red-500/10 text-red-400 border-red-500/30',
+}
 
-  const sizeClasses = {
-    sm: 'px-2 py-0.5 text-xs',
-    md: 'px-3 py-1 text-sm',
-  }
-
+export function StatusBadge({ label, variant = 'default', className }: StatusBadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full font-medium',
-        variantClasses[variant],
-        sizeClasses[size],
+        'inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium whitespace-nowrap',
+        VARIANTS[variant],
         className
       )}
     >

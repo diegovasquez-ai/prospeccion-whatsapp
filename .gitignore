@@ -35,7 +35,7 @@ yarn-error.log*
 
 # Local env files
 .env*.local
-.env*.example
+!.env.example
 
 # Vercel
 .vercel
@@ -63,3 +63,6 @@ Thumbs.db
 # Supabase
 supabase/.branches
 supabase/.temp
+
+# TypeScript
+*.tsbuildinfo
