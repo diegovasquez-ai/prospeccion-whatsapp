@@ -98,16 +98,18 @@ export default function ConfiguracionPage() {
         </div>
       </Card>
 
-      <Card className="p-5 mb-6">
-        <h2 className="mb-4 font-semibold text-text-primary">Cómo conectar tu Supabase</h2>
-        <ol className="space-y-3">
-          <Paso n={1}>En Supabase abre <strong>Project Settings → API</strong> y copia la <em>Project URL</em> y la <em>anon / publishable key</em>.</Paso>
-          <Paso n={2}>Crea el archivo <code className="text-vivid-cyan">.env.local</code> en la raíz del proyecto (usa <code>.env.example</code> como guía) con <code>NEXT_PUBLIC_SUPABASE_URL</code> y <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code>.</Paso>
-          <Paso n={3}>En <strong>SQL Editor</strong> ejecuta, en orden, los archivos de <code>supabase/migrations/</code> que aún no hayas aplicado (001 → 004).</Paso>
-          <Paso n={4}>En <strong>Authentication → Users</strong> crea tu usuario (email y contraseña) y desactiva los registros públicos en <strong>Authentication → Sign In / Providers</strong>.</Paso>
-          <Paso n={5}>Reinicia el servidor (<code>npm run dev</code>), inicia sesión y pulsa <em>Probar conexión</em>.</Paso>
-        </ol>
-      </Card>
+      {/* La guía solo tiene sentido en modo demo; conectado, confunde */}
+      {!isSupabaseConfigured && (
+        <Card className="p-5 mb-6">
+          <h2 className="mb-4 font-semibold text-text-primary">Cómo conectar tu Supabase</h2>
+          <ol className="space-y-3">
+            <Paso n={1}>En Supabase abre <strong>Project Settings → API</strong> y copia la <em>Project URL</em> y la <em>anon / publishable key</em>.</Paso>
+            <Paso n={2}>Crea el archivo <code className="text-vivid-cyan">.env.local</code> en la raíz del proyecto (usa <code>.env.example</code> como guía) con <code>NEXT_PUBLIC_SUPABASE_URL</code> y <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code>.</Paso>
+            <Paso n={3}>En <strong>SQL Editor</strong> ejecuta, en orden, los archivos de <code>supabase/migrations/</code> (001 → 006).</Paso>
+            <Paso n={4}>Reinicia el servidor (<code>npm run dev</code>). La primera vez, la pantalla de inicio te pedirá <em>Crear mi cuenta</em> (solo se permite una).</Paso>
+          </ol>
+        </Card>
+      )}
 
       <Card className="p-5">
         <h2 className="mb-2 font-semibold text-text-primary">Preferencias</h2>
