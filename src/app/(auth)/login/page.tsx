@@ -7,7 +7,7 @@ import { MessageCircle } from 'lucide-react'
 import { Button, buttonClasses } from '@/shared/components/ui/Button'
 import { Field, Input } from '@/shared/components/ui/Form'
 import { isSupabaseConfigured } from '@/shared/lib/supabase'
-import { signIn, useSession } from '@/features/auth/hooks/useSession'
+import { needsFirstAccount, signIn, signUpFirstAccount, useSession } from '@/features/auth/hooks/useSession'
 
 function LoginForm() {
   const router = useRouter()
@@ -18,17 +18,23 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [registro, setRegistro] = useState(false)
 
   useEffect(() => {
     if (status === 'authenticated') router.replace(next)
   }, [status, router, next])
+
+  useEffect(() => {
+    needsFirstAccount().then(setRegistro)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
     try {
-      await signIn(email.trim(), password)
+      if (registro) await signUpFirstAccount(email.trim(), password)
+      else await signIn(email.trim(), password)
       router.replace(next)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo iniciar sesión')
@@ -52,19 +58,22 @@ function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {registro && (
+        <p className="rounded-lg border border-vivid-cyan/30 bg-vivid-cyan/5 p-3 text-sm text-text-secondary">
+          <strong className="text-text-primary">Primera vez:</strong> crea tu cuenta de acceso. Solo se permite una cuenta en este CRM.
+        </p>
+      )}
       <Field label="Email" htmlFor="email">
         <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
       </Field>
       <Field label="Contraseña" htmlFor="password">
-        <Input id="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+        <Input id="password" type="password" autoComplete={registro ? 'new-password' : 'current-password'} required minLength={registro ? 8 : undefined} value={password} onChange={(e) => setPassword(e.target.value)} />
       </Field>
       {error && <p className="text-sm text-red-400">{error}</p>}
       <Button type="submit" loading={loading} className="w-full justify-center">
-        Iniciar sesión
+        {registro ? 'Crear mi cuenta y entrar' : 'Iniciar sesión'}
       </Button>
-      <p className="text-xs text-text-tertiary text-center">
-        Los usuarios se crean en Supabase → Authentication → Users.
-      </p>
+      {registro && <p className="text-xs text-text-tertiary text-center">Mínimo 8 caracteres. Guárdala bien: es la llave de tus datos.</p>}
     </form>
   )
 }

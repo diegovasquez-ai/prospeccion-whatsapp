@@ -37,6 +37,29 @@ export async function signIn(email: string, password: string) {
   }
 }
 
+/** true si el CRM aún no tiene cuenta (se muestra el formulario de registro) */
+export async function needsFirstAccount(): Promise<boolean> {
+  if (!supabase) return false
+  const { data, error } = await supabase.rpc('crm_tiene_usuario')
+  if (error) return false
+  return data === false
+}
+
+/** Crea la única cuenta del CRM y entra directamente */
+export async function signUpFirstAccount(email: string, password: string) {
+  if (!supabase) throw new Error('Supabase no está configurado')
+  if (password.length < 8) throw new Error('La contraseña debe tener al menos 8 caracteres')
+  const { error } = await supabase.auth.signUp({ email, password })
+  if (error) {
+    throw new Error(
+      /registrad|Database error/i.test(error.message)
+        ? 'Este CRM ya tiene una cuenta. Inicia sesión.'
+        : error.message
+    )
+  }
+  await signIn(email, password)
+}
+
 export async function signOut() {
   await supabase?.auth.signOut()
 }
