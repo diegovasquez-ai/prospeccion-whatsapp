@@ -66,6 +66,15 @@ export interface ZernioClientConfig {
 
 type Attempt<T> = { result: ZernioResult<T>; retryable: boolean }
 
+/** Quita espacios, saltos de línea, comillas o un "Bearer " pegados por error con la clave */
+export function cleanApiKey(raw: string | undefined): string {
+  return (raw ?? '')
+    .trim()
+    .replace(/^["']|["']$/g, '')
+    .replace(/^Bearer\s+/i, '')
+    .trim()
+}
+
 const defaultSleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
 function failure(status: number, code: string, message: string, retryAfter: number | null = null) {
@@ -173,7 +182,7 @@ async function attemptOnce<T>(
 }
 
 export function createZernioClient(config: ZernioClientConfig = {}) {
-  const apiKey = config.apiKey ?? process.env.ZERNIO_API_KEY ?? ''
+  const apiKey = cleanApiKey(config.apiKey ?? process.env.ZERNIO_API_KEY)
   const baseUrl = config.baseUrl ?? process.env.ZERNIO_BASE_URL ?? ZERNIO_BASE_URL
   const maxRetries = config.maxRetries ?? DEFAULT_MAX_RETRIES
   const maxRetryAfterMs = config.maxRetryAfterMs ?? DEFAULT_MAX_RETRY_AFTER_MS

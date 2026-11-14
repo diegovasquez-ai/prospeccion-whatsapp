@@ -3,6 +3,7 @@
  */
 import {
   backoffDelay,
+  cleanApiKey,
   createZernioClient,
   parseErrorBody,
   parseRetryAfter,
@@ -178,5 +179,14 @@ describe('utilidades', () => {
     expect(backoffDelay(0, () => 1)).toBe(500)
     expect(backoffDelay(3, () => 1)).toBe(4000)
     expect(backoffDelay(10, () => 1)).toBe(8000)
+  })
+})
+
+describe('cleanApiKey', () => {
+  test('quita espacios, saltos de línea, comillas y "Bearer " pegados por error', () => {
+    expect(cleanApiKey('  sk_live_123\n')).toBe('sk_live_123')
+    expect(cleanApiKey('"sk_live_123"')).toBe('sk_live_123')
+    expect(cleanApiKey('Bearer sk_live_123')).toBe('sk_live_123')
+    expect(cleanApiKey(undefined)).toBe('')
   })
 })

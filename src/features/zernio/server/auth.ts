@@ -4,6 +4,7 @@
  * un cliente de BD que actúa como ese usuario (respeta RLS, sin service role).
  */
 import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js'
+import { cleanApiKey } from '../services/zernio-client'
 
 export type AuthResult =
   | { ok: true; user: User; db: SupabaseClient }
@@ -32,7 +33,7 @@ export async function requireUser(request: Request): Promise<AuthResult> {
 }
 
 export function requireZernioKey(): Response | null {
-  return process.env.ZERNIO_API_KEY
+  return cleanApiKey(process.env.ZERNIO_API_KEY)
     ? null
     : jsonError(503, 'zernio_not_configured', 'Falta configurar la clave de Zernio (ZERNIO_API_KEY) en el servidor')
 }

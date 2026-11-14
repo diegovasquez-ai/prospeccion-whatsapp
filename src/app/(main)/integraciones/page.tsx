@@ -59,7 +59,7 @@ export default function IntegracionesPage() {
     <Page className="max-w-3xl">
       <PageHeader title="Integraciones" description="Conecta tu WhatsApp, Instagram o Messenger a través de Zernio" />
       {isLoading ? <LoadingState label="Consultando Zernio…" /> : error ? (
-        <ErrorState error={error} />
+        <ErrorState error={error} hint="La clave de Zernio se configura en Vercel → Settings → Environment Variables (ZERNIO_API_KEY)." />
       ) : (
         <div className="space-y-6">
           <Card className="p-5">

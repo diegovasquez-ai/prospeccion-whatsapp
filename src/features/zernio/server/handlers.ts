@@ -22,8 +22,11 @@ async function guard(request: Request): Promise<{ ok: true; ctx: Guarded } | { o
 /** Traduce un error de Zernio a respuesta HTTP sin filtrar datos sensibles */
 function zernioFailure(error: ZernioError): Response {
   // Un 401/403 de Zernio es la clave o el token de Meta, no la sesión del usuario en el CRM
+  if (error.status === 401 && /api key/i.test(error.message)) {
+    return jsonError(400, 'zernio_api_key_invalid', 'Zernio rechazó la clave API: no es válida, fue revocada o expiró. Copia de nuevo la clave desde Zernio y actualiza ZERNIO_API_KEY en Vercel.')
+  }
   if (error.status === 401) {
-    return jsonError(400, error.code || 'credentials_rejected', `Credenciales rechazadas: ${error.message}`)
+    return jsonError(400, error.code || 'credentials_rejected', `Meta rechazó las credenciales: ${error.message}`)
   }
   const status = error.status >= 400 && error.status < 600 ? error.status : 502
   const message = connectErrorMessage(error.code, error.message)

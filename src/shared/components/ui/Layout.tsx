@@ -60,7 +60,7 @@ export function LoadingState({ label = 'Cargando…' }: { label?: string }) {
   )
 }
 
-export function ErrorState({ error }: { error: unknown }) {
+export function ErrorState({ error, hint }: { error: unknown; hint?: React.ReactNode }) {
   const message = error instanceof Error ? error.message : 'Error desconocido'
   return (
     <div className="flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/5 p-4 text-sm">
@@ -69,7 +69,11 @@ export function ErrorState({ error }: { error: unknown }) {
         <p className="font-medium text-red-300">No se pudieron cargar los datos</p>
         <p className="text-text-secondary mt-0.5">{message}</p>
         <p className="text-text-tertiary mt-1">
-          Revisa la conexión en <a href="/configuracion" className="underline">Configuración</a>.
+          {hint ?? (
+            <>
+              Revisa la conexión en <a href="/configuracion" className="underline">Configuración</a>.
+            </>
+          )}
         </p>
       </div>
     </div>
