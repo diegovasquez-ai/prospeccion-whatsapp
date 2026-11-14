@@ -1,36 +1,27 @@
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+'use client'
+
+import { useDraggable } from '@dnd-kit/core'
+import { cn } from '@/shared/utils/cn'
 import { LeadCard } from './LeadCard'
 import type { Lead } from '../types'
-import { cn } from '@/shared/utils/cn'
 
 interface SortableLeadCardProps {
   lead: Lead
   onClick?: () => void
 }
 
+/**
+ * Tarjeta arrastrable entre columnas del Kanban. La tarjeta interna es el
+ * único elemento enfocable; con teclado la etapa se cambia en la ficha.
+ */
 export function SortableLeadCard({ lead, onClick }: SortableLeadCardProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: lead.id! })
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  }
-
+  const { listeners, setNodeRef, isDragging } = useDraggable({ id: lead.id })
   return (
     <div
       ref={setNodeRef}
-      style={style}
-      {...attributes}
       {...listeners}
-      className={cn("cursor-grab active:cursor-grabbing", isDragging && "opacity-50")}
+      data-lead-id={lead.id}
+      className={cn('cursor-grab active:cursor-grabbing touch-none select-none', isDragging && 'opacity-30')}
     >
       <LeadCard lead={lead} onClick={onClick} />
     </div>

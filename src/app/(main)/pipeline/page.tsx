@@ -1,109 +1,64 @@
 'use client'
 
-import { useState } from 'react'
-import { Search, Plus } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Plus, Search } from 'lucide-react'
+import { Button } from '@/shared/components/ui/Button'
+import { Input, Select, toOptions } from '@/shared/components/ui/Form'
+import { ErrorState, LoadingState } from '@/shared/components/ui/Layout'
+import { useCrmUi } from '@/shared/stores/crm-ui-store'
+import { formatMoney } from '@/shared/utils/dates'
 import { KanbanBoard } from '@/features/leads/components/KanbanBoard'
-import { LeadDetailPanel } from '@/features/leads/components/LeadDetailPanel'
-import { CreateLeadModal } from '@/features/leads/components/CreateLeadModal'
-import { useTodayLeadsCount } from '@/features/leads/hooks/useLeads'
-import type { Lead } from '@/features/leads/types'
+import { useLeads } from '@/features/leads/hooks/useLeads'
+import { PRIORIDAD_LABELS, type LeadFilters, type Prioridad } from '@/features/leads/types'
 
 export default function PipelinePage() {
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [esCalificadoFilter, setEsCalificadoFilter] = useState<boolean | null>(
-    null
+  const router = useRouter()
+  const openLeadForm = useCrmUi((s) => s.openLeadForm)
+  const [search, setSearch] = useState('')
+  const [prioridad, setPrioridad] = useState<Prioridad | ''>('')
+  const [calificado, setCalificado] = useState('')
+
+  const filters = useMemo<LeadFilters>(
+    () => ({ search, prioridad, es_calificado: calificado === '' ? null : calificado === 'si' }),
+    [search, prioridad, calificado]
   )
-  const { data: todayLeadsCount = 0 } = useTodayLeadsCount()
+  const { data: leads, isLoading, error } = useLeads(filters)
+  const abiertos = leads.filter((l) => !['cliente', 'cerrado'].includes(l.etapa))
+  const valor = abiertos.reduce((acc, l) => acc + (l.valor_estimado ?? 0), 0)
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="border-b border-border-primary px-6 py-4 bg-background-elevated">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-text-primary">
-                Pipeline de Prospección
-              </h1>
-              <div className="px-3 py-1 bg-background-card border border-border-secondary rounded-full flex items-center gap-2 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-vivid-green animate-pulse" />
-                <span className="text-xs font-medium text-text-secondary">
-                  Hoy: <span className="text-text-primary font-bold">{todayLeadsCount}</span> leads
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-vivid text-white rounded-lg hover:opacity-90 transition-opacity font-medium shadow-lg shadow-vivid-cyan/20"
-            >
-              <Plus size={20} />
-              Nuevo Lead
-            </button>
+    <div className="flex h-full flex-col">
+      <header className="border-b border-border-primary bg-background-elevated px-4 sm:px-6 py-4 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-bold text-text-primary">Pipeline de prospección</h1>
+            <p className="text-xs text-text-secondary mt-0.5">
+              {abiertos.length} oportunidades abiertas · {formatMoney(valor)} en juego · arrastra las tarjetas para cambiar de etapa
+            </p>
           </div>
-
-          {/* Filtros */}
-          <div className="flex items-center gap-4">
-            {/* Búsqueda */}
-            <div className="flex-1 max-w-md relative">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary"
-                size={20}
-              />
-              <input
-                type="text"
-                placeholder="Buscar por teléfono o nombre..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-background-card border border-border-secondary rounded-lg focus:ring-2 focus:ring-vivid-cyan focus:border-vivid-cyan text-text-primary placeholder:text-text-tertiary transition-all"
-              />
-            </div>
-
-            {/* Filtro por calificado */}
-            <select
-              value={esCalificadoFilter === null ? 'all' : String(esCalificadoFilter)}
-              onChange={(e) =>
-                setEsCalificadoFilter(
-                  e.target.value === 'all' ? null : e.target.value === 'true'
-                )
-              }
-              className="px-4 py-2 bg-background-card border border-border-secondary rounded-lg focus:ring-2 focus:ring-vivid-cyan focus:border-vivid-cyan text-text-primary transition-all"
-            >
-              <option value="all">Todos los leads</option>
-              <option value="true">Solo calificados</option>
-              <option value="false">No calificados</option>
-            </select>
+          <Button onClick={() => openLeadForm()}>
+            <Plus size={16} /> Nuevo contacto
+          </Button>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="relative flex-1 max-w-md">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
+            <Input aria-label="Buscar" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por nombre, teléfono, ciudad…" className="pl-9" />
           </div>
-        </header>
-
-        {/* Kanban Board */}
-        <main className="flex-1 overflow-auto px-6 py-4 bg-background">
-          <KanbanBoard
-            searchQuery={searchQuery}
-            esCalificadoFilter={esCalificadoFilter}
-            onLeadClick={(lead) => setSelectedLead(lead)}
-          />
-        </main>
+          <Select aria-label="Prioridad" value={prioridad} onChange={(e) => setPrioridad(e.target.value as Prioridad | '')} placeholder="Todas las prioridades" options={toOptions(PRIORIDAD_LABELS)} className="sm:w-48" />
+          <Select aria-label="Calificación" value={calificado} onChange={(e) => setCalificado(e.target.value)} placeholder="Calificados y no calificados" options={[{ value: 'si', label: 'Solo calificados' }, { value: 'no', label: 'No calificados' }]} className="sm:w-56" />
+        </div>
+      </header>
+      <div className="flex-1 overflow-auto px-4 sm:px-6 py-4">
+        {isLoading ? (
+          <LoadingState label="Cargando pipeline…" />
+        ) : error ? (
+          <ErrorState error={error} />
+        ) : (
+          <KanbanBoard leads={leads} onLeadClick={(lead) => router.push(`/contactos/${lead.id}`)} />
+        )}
       </div>
-
-      {/* Side panel de detalle */}
-      {selectedLead && (
-        <LeadDetailPanel
-          key={selectedLead.id}
-          lead={selectedLead}
-          onClose={() => setSelectedLead(null)}
-        />
-      )}
-
-      {/* Modal de crear lead */}
-      {isCreateModalOpen && (
-        <CreateLeadModal
-          isOpen={isCreateModalOpen}
-          onClose={() => setIsCreateModalOpen(false)}
-        />
-      )}
     </div>
   )
 }

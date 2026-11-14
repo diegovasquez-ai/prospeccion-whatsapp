@@ -1,69 +1,40 @@
+'use client'
+
 import { MessageCircle } from 'lucide-react'
-import { cn } from '@/shared/utils/cn'
+import { useCrmUi } from '@/shared/stores/crm-ui-store'
+import { Button } from './Button'
 
 interface WhatsAppButtonProps {
-  phoneNumber: string
-  className?: string
-  size?: 'sm' | 'md' | 'lg'
+  leadId: string
   variant?: 'icon' | 'button'
-  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void
+  className?: string
 }
 
-export function WhatsAppButton({
-  phoneNumber,
-  className,
-  size = 'md',
-  variant = 'button',
-  onClick,
-}: WhatsAppButtonProps) {
-  const cleanNumber = phoneNumber.replace(/\D/g, '')
-  const whatsappUrl = `https://wa.me/${cleanNumber}`
-
-  const sizeClasses = {
-    sm: variant === 'icon' ? 'p-1' : 'px-2 py-1 text-xs',
-    md: variant === 'icon' ? 'p-2' : 'px-3 py-2 text-sm',
-    lg: variant === 'icon' ? 'p-3' : 'px-4 py-2 text-base',
+/** Abre el compositor de WhatsApp (plantillas + registro en historial) */
+export function WhatsAppButton({ leadId, variant = 'button', className }: WhatsAppButtonProps) {
+  const openWhatsApp = useCrmUi((s) => s.openWhatsApp)
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    openWhatsApp(leadId)
   }
-
-  const iconSizes = {
-    sm: 14,
-    md: 18,
-    lg: 22,
-  }
-
   if (variant === 'icon') {
     return (
-      <a
-        href={whatsappUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={onClick}
-        className={cn(
-          'inline-flex items-center justify-center rounded-full bg-vivid-green text-background hover:bg-vivid-green/80 transition-all shadow-md shadow-vivid-green/30 hover:shadow-lg hover:shadow-vivid-green/40',
-          sizeClasses[size],
-          className
-        )}
-        title="Abrir en WhatsApp"
+      <Button
+        variant="whatsapp"
+        size="icon"
+        onClick={handleClick}
+        onPointerDown={(e) => e.stopPropagation()}
+        className={className ?? 'h-8 w-8 rounded-full'}
+        title="Contactar por WhatsApp"
+        aria-label="Contactar por WhatsApp"
       >
-        <MessageCircle size={iconSizes[size]} />
-      </a>
+        <MessageCircle size={16} />
+      </Button>
     )
   }
-
   return (
-    <a
-      href={whatsappUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={onClick}
-      className={cn(
-        'inline-flex items-center gap-2 rounded-lg bg-vivid-green text-background hover:bg-vivid-green/80 transition-all shadow-md shadow-vivid-green/30 hover:shadow-lg hover:shadow-vivid-green/40 font-medium',
-        sizeClasses[size],
-        className
-      )}
-    >
-      <MessageCircle size={iconSizes[size]} />
-      <span>Abrir WhatsApp</span>
-    </a>
+    <Button variant="whatsapp" onClick={handleClick} className={className}>
+      <MessageCircle size={16} /> WhatsApp
+    </Button>
   )
 }

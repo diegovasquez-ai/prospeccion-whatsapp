@@ -3,180 +3,55 @@
 import { useState } from 'react'
 import {
   DndContext,
-  DragEndEvent,
   DragOverlay,
-  DragStartEvent,
   MouseSensor,
   pointerWithin,
   TouchSensor,
   useSensor,
   useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
 } from '@dnd-kit/core'
 import { LeadCard } from './LeadCard'
 import { KanbanColumn } from './KanbanColumn'
-import { useLeads, useUpdateLead } from '../hooks/useLeads'
-import { EtapaLead, ETAPA_LABELS, type EtapaLeadType, type Lead } from '../types'
+import { useQueryClient } from '@tanstack/react-query'
+import { LEADS_QUERY_KEY, useUpdateLead } from '../hooks/useLeads'
+import { ETAPAS, ETAPA_LABELS, type EtapaLeadType, type Lead } from '../types'
 
 interface KanbanBoardProps {
-  onLeadClick?: (lead: Lead) => void
-  searchQuery?: string
-  esCalificadoFilter?: boolean | null
+  leads: Lead[]
+  onLeadClick: (lead: Lead) => void
 }
 
-const COLUMNAS_PIPELINE: EtapaLeadType[] = [
-  EtapaLead.NUEVO_LEAD,
-  EtapaLead.PRIMER_MENSAJE_ENVIADO,
-  EtapaLead.AUDIO_ENVIADO,
-  EtapaLead.LOOM_ENVIADO,
-  EtapaLead.RESPONDIO,
-  EtapaLead.INTERESADO,
-  EtapaLead.REUNION_AGENDADA,
-  EtapaLead.CERRADO,
-]
-
-const STAGE_STYLES: Record<
-  EtapaLeadType,
-  { borderColor: string; badgeBg: string; badgeText: string; glow: string }
-> = {
-  [EtapaLead.NUEVO_LEAD]: {
-    borderColor: 'border-text-tertiary',
-    badgeBg: 'bg-text-tertiary/10',
-    badgeText: 'text-text-tertiary',
-    glow: 'shadow-text-tertiary/20',
-  },
-  [EtapaLead.PRIMER_MENSAJE_ENVIADO]: {
-    borderColor: 'border-vivid-blue',
-    badgeBg: 'bg-vivid-blue/10',
-    badgeText: 'text-vivid-blue',
-    glow: 'shadow-vivid-blue/20',
-  },
-  [EtapaLead.AUDIO_ENVIADO]: {
-    borderColor: 'border-vivid-purple',
-    badgeBg: 'bg-vivid-purple/10',
-    badgeText: 'text-vivid-purple',
-    glow: 'shadow-vivid-purple/20',
-  },
-  [EtapaLead.LOOM_ENVIADO]: {
-    borderColor: 'border-vivid-magenta',
-    badgeBg: 'bg-vivid-magenta/10',
-    badgeText: 'text-vivid-magenta',
-    glow: 'shadow-vivid-magenta/20',
-  },
-  [EtapaLead.RESPONDIO]: {
-    borderColor: 'border-vivid-yellow',
-    badgeBg: 'bg-vivid-yellow/10',
-    badgeText: 'text-vivid-yellow',
-    glow: 'shadow-vivid-yellow/20',
-  },
-  [EtapaLead.INTERESADO]: {
-    borderColor: 'border-vivid-cyan',
-    badgeBg: 'bg-vivid-cyan/10',
-    badgeText: 'text-vivid-cyan',
-    glow: 'shadow-vivid-cyan/20',
-  },
-  [EtapaLead.REUNION_AGENDADA]: {
-    borderColor: 'border-vivid-green',
-    badgeBg: 'bg-vivid-green/10',
-    badgeText: 'text-vivid-green',
-    glow: 'shadow-vivid-green/20',
-  },
-  [EtapaLead.CERRADO]: {
-    borderColor: 'border-red-500',
-    badgeBg: 'bg-red-500/10',
-    badgeText: 'text-red-500',
-    glow: 'shadow-red-500/20',
-  },
-}
-
-export function KanbanBoard({
-  onLeadClick,
-  searchQuery,
-  esCalificadoFilter,
-}: KanbanBoardProps) {
+export function KanbanBoard({ leads, onLeadClick }: KanbanBoardProps) {
   const [activeLead, setActiveLead] = useState<Lead | null>(null)
-
-  const { data: leads = [], isLoading } = useLeads({
-    search: searchQuery,
-    es_calificado: esCalificadoFilter ?? undefined,
-  })
-
-  const { mutate: updateLead } = useUpdateLead()
+  const update = useUpdateLead()
+  const queryClient = useQueryClient()
 
   const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        distance: 5, // Menor distancia para iniciar drag con mouse (más responsivo)
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 250, // Pequeño delay para diferenciar scroll de drag
-        tolerance: 5,
-      },
-    })
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 6 } })
   )
 
-  const handleDragStart = (event: DragStartEvent) => {
-    const lead = leads.find((l) => l.id === event.active.id)
-    setActiveLead(lead || null)
-  }
+  const handleDragStart = (event: DragStartEvent) =>
+    setActiveLead(leads.find((l) => l.id === event.active.id) ?? null)
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-
-    if (!over || active.id === over.id) {
-      setActiveLead(null)
-      return
-    }
-
-    const leadId = active.id as string
-    let newEtapa = over.id as EtapaLeadType
-
-    // Si el id sobre el que soltamos NO es una columna, asumimos que es un lead
-    // y buscamos su etapa correspondiente
-    if (!COLUMNAS_PIPELINE.includes(newEtapa)) {
-      const overLead = leads.find((l) => l.id === over.id)
-      if (overLead) {
-        newEtapa = overLead.etapa
-      } else {
-        // Si no es columna ni lead conocido, cancelamos
-        setActiveLead(null)
-        return
-      }
-    }
-
-    // Actualizar etapa del lead solo si cambió
-    const activeLead = leads.find((l) => l.id === leadId)
-    if (activeLead && activeLead.etapa !== newEtapa) {
-      updateLead({
-        id: leadId,
-        input: { etapa: newEtapa },
-      })
-    }
-
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
     setActiveLead(null)
-  }
-
-  const handleDragCancel = () => {
-    setActiveLead(null)
-  }
-
-  // Agrupar leads por etapa
-  const leadsPorEtapa = COLUMNAS_PIPELINE.reduce(
-    (acc, etapa) => {
-      acc[etapa] = leads.filter((lead) => lead.etapa === etapa)
-      return acc
-    },
-    {} as Record<EtapaLeadType, Lead[]>
-  )
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-text-secondary">Cargando leads...</p>
-      </div>
+    if (!over) return
+    const etapa = over.id as EtapaLeadType
+    const lead = leads.find((l) => l.id === active.id)
+    if (!lead || !ETAPAS.includes(etapa) || lead.etapa === etapa) return
+    const input: Partial<Lead> = { etapa }
+    if (['respondio', 'interesado', 'reunion_agendada', 'cliente'].includes(etapa)) input.respondio = true
+    // Actualización optimista: la tarjeta queda en su nueva columna al instante
+    queryClient.setQueryData<Lead[]>(LEADS_QUERY_KEY, (old) =>
+      old?.map((l) => (l.id === lead.id ? { ...l, ...input } : l))
     )
+    update.mutate({ id: lead.id, input })
   }
+
+  const porEtapa = (etapa: EtapaLeadType) => leads.filter((l) => l.etapa === etapa)
 
   return (
     <DndContext
@@ -184,23 +59,23 @@ export function KanbanBoard({
       collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      onDragCancel={handleDragCancel}
+      onDragCancel={() => setActiveLead(null)}
+      accessibility={{
+        announcements: {
+          onDragStart: ({ active }) => `Moviendo ${leads.find((l) => l.id === active.id)?.nombre_negocio ?? ''}`,
+          onDragOver: ({ over }) => (over ? `Sobre ${ETAPA_LABELS[over.id as EtapaLeadType] ?? ''}` : ''),
+          onDragEnd: ({ over }) => (over ? `Movido a ${ETAPA_LABELS[over.id as EtapaLeadType] ?? ''}` : 'Cancelado'),
+          onDragCancel: () => 'Movimiento cancelado',
+        },
+      }}
     >
-      <div className="flex gap-4 pb-4 min-h-full">
-        {COLUMNAS_PIPELINE.map((etapa) => (
-          <KanbanColumn
-            key={etapa}
-            etapa={etapa}
-            title={ETAPA_LABELS[etapa]}
-            leads={leadsPorEtapa[etapa]}
-            onLeadClick={onLeadClick}
-            colorStyles={STAGE_STYLES[etapa]}
-          />
+      <div className="flex gap-3 pb-4 min-h-full">
+        {ETAPAS.map((etapa) => (
+          <KanbanColumn key={etapa} etapa={etapa} leads={porEtapa(etapa)} onLeadClick={onLeadClick} />
         ))}
       </div>
-
       <DragOverlay>
-        {activeLead && <LeadCard lead={activeLead} className="rotate-3 shadow-lg" />}
+        {activeLead && <LeadCard lead={activeLead} className="rotate-2 shadow-2xl border-vivid-cyan/60" />}
       </DragOverlay>
     </DndContext>
   )

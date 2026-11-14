@@ -1,3 +1,21 @@
+# 📇 CRM de prospección por WhatsApp
+
+| Sección | Qué hace |
+|---|---|
+| **Dashboard** | KPIs (respuesta, interés, conversión, valor del pipeline), embudo, fuentes, actividad diaria |
+| **Pipeline** | Kanban con arrastrar y soltar entre 9 etapas |
+| **Contactos** | Alta/edición, filtros, búsqueda, importación y exportación CSV, ficha con historial |
+| **Seguimientos** | Vencidos, hoy, próximos y completados |
+| **Historial** | Llamadas (con duración), WhatsApp enviados/recibidos, reuniones y notas |
+| **Plantillas** | Mensajes con variables `{contacto}`, `{negocio}`, `{ciudad}`, `{sector}` |
+| **Configuración** | Estado y prueba de la conexión con Supabase |
+
+**Modo demo:** sin `.env.local` los datos se guardan en el navegador (con datos de ejemplo).
+**Supabase:** copia `.env.example` → `.env.local`, ejecuta `supabase/migrations/001…004` en el SQL Editor
+y crea tu usuario en Authentication → Users. La migración 004 exige iniciar sesión (RLS para `authenticated`).
+
+---
+
 # 🚀 Next.js + Claude Code - Frontend Setup
 
 Setup completo de Next.js 16 + Supabase + Claude Code listo para producción. Arquitectura Feature-First optimizada para desarrollo asistido por IA.
