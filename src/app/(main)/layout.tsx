@@ -12,6 +12,7 @@ import {
   LogOut,
   Menu,
   MessageCircle,
+  Plug,
   Settings,
   Users,
   X,
@@ -31,6 +32,7 @@ const NAV_ITEMS = [
   { href: '/seguimientos', label: 'Seguimientos', icon: CalendarClock },
   { href: '/historial', label: 'Historial', icon: History },
   { href: '/plantillas', label: 'Plantillas', icon: FileText },
+  { href: '/integraciones', label: 'Integraciones', icon: Plug },
   { href: '/configuracion', label: 'Configuración', icon: Settings },
 ]
 
